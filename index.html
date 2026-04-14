@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Plant Guess</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #eaf4e2;
+      --bg-dark: #d4e7c8;
+      --card: #f4fbef;
+      --panel: #dbeecf;
+      --panel-2: #c7dfb8;
+      --text: #2f4a34;
+      --muted: #5f7a63;
+      --accent: #90b77d;
+      --accent-dark: #6f9661;
+      --border: #6b8f68;
+      --shadow: #b7ceb0;
+      --success-bg: #d8efcf;
+      --success-text: #335d37;
+      --error-bg: #f3ddd7;
+      --error-text: #8b4d4d;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      background:
+        linear-gradient(0deg, rgba(255,255,255,0.15), rgba(255,255,255,0.15)),
+        repeating-linear-gradient(
+          0deg,
+          var(--bg) 0px,
+          var(--bg) 16px,
+          var(--bg-dark) 16px,
+          var(--bg-dark) 32px
+        );
+      color: var(--text);
+      font-family: "Press Start 2P", system-ui, sans-serif;
+      image-rendering: pixelated;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 470px;
+      background: var(--card);
+      border: 4px solid var(--border);
+      box-shadow:
+        0 0 0 4px var(--card),
+        0 0 0 8px var(--border),
+        8px 8px 0 0 var(--shadow);
+      padding: 0;
+    }
+
+    .header {
+      background: var(--panel);
+      border-bottom: 4px solid var(--border);
+      padding: 16px 14px 10px;
+      text-align: center;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 1rem;
+      line-height: 1.5;
+      color: var(--text);
+    }
+
+    .subtext {
+      margin-top: 8px;
+      font-size: 0.5rem;
+      line-height: 1.7;
+      color: var(--muted);
+    }
+
+    .image-wrap {
+      padding: 16px 16px 8px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .image-frame {
+      width: 100%;
+      max-width: 300px;
+      min-height: 240px;
+      background: var(--panel-2);
+      border: 4px solid var(--border);
+      box-shadow: inset 0 0 0 4px #edf7e7;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+    }
+
+    .plant-image {
+      width: 72%;
+      max-width: 220px;
+      height: auto;
+      max-height: 200px;
+      object-fit: contain;
+      display: block;
+      border: 4px solid var(--border);
+      background: #edf7e7;
+    }
+
+    .image-error {
+      display: none;
+      text-align: center;
+      font-size: 0.55rem;
+      line-height: 1.8;
+      color: var(--muted);
+    }
+
+    .content {
+      padding: 10px 16px 16px;
+    }
+
+    .label {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 0.55rem;
+      line-height: 1.6;
+      color: var(--text);
+    }
+
+    .guess-row {
+      display: flex;
+      gap: 8px;
+      align-items: stretch;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      min-width: 0;
+      padding: 12px 10px;
+      border: 4px solid var(--border);
+      background: #f7fcf4;
+      color: var(--text);
+      font-family: "Press Start 2P", system-ui, sans-serif;
+      font-size: 0.52rem;
+      line-height: 1.6;
+      outline: none;
+      box-shadow: inset 4px 4px 0 #ddebd4;
+    }
+
+    input[type="text"]::placeholder {
+      color: #7c947d;
+    }
+
+    button {
+      border: 4px solid var(--border);
+      background: var(--accent);
+      color: #f7fff4;
+      font-family: "Press Start 2P", system-ui, sans-serif;
+      font-size: 0.5rem;
+      padding: 12px 10px;
+      cursor: pointer;
+      box-shadow: 4px 4px 0 var(--shadow);
+      transition: transform 0.05s ease, box-shadow 0.05s ease, background 0.1s ease;
+    }
+
+    button:hover {
+      background: var(--accent-dark);
+    }
+
+    button:active {
+      transform: translate(3px, 3px);
+      box-shadow: 1px 1px 0 var(--shadow);
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: 4px 4px 0 var(--shadow);
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .secondary {
+      background: var(--panel);
+      color: var(--text);
+    }
+
+    .secondary:hover {
+      background: var(--panel-2);
+    }
+
+    .message {
+      margin-top: 12px;
+      padding: 12px;
+      border: 4px solid var(--border);
+      font-size: 0.5rem;
+      line-height: 1.8;
+      display: none;
+    }
+
+    .message.success {
+      display: block;
+      background: var(--success-bg);
+      color: var(--success-text);
+    }
+
+    .message.error {
+      display: block;
+      background: var(--error-bg);
+      color: var(--error-text);
+    }
+
+    .answer {
+      margin-top: 12px;
+      padding: 12px;
+      border: 4px solid var(--border);
+      background: #eef8e8;
+      display: none;
+      font-size: 0.5rem;
+      line-height: 1.9;
+    }
+
+    .answer strong {
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .footer {
+      margin-top: 12px;
+      padding: 10px;
+      text-align: center;
+      font-size: 0.48rem;
+      line-height: 1.8;
+      color: var(--muted);
+      border: 4px solid var(--border);
+      background: var(--panel);
+    }
+
+    @media (max-width: 520px) {
+      .card {
+        max-width: 100%;
+      }
+
+      .header h1 {
+        font-size: 0.85rem;
+      }
+
+      .subtext {
+        font-size: 0.45rem;
+      }
+
+      .guess-row {
+        flex-direction: column;
+      }
+
+      .actions {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .plant-image {
+        width: 80%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="header">
+      <h1>ADIVINA ADIVINADOR</h1>
+      <div class="subtext">guess the plant • skip if needed</div>
+    </div>
+
+    <div class="image-wrap">
+      <div class="image-frame">
+        <img id="plantImage" class="plant-image" alt="Guess this plant" />
+        <div id="imageError" class="image-error">IMAGE ERROR<br>SKIP THIS ONE</div>
+      </div>
+    </div>
+
+    <div class="content">
+      <label class="label" for="guessInput">YOUR GUESS</label>
+
+      <div class="guess-row">
+        <input id="guessInput" type="text" placeholder="TYPE NAME..." autocomplete="off" />
+        <button id="checkBtn">CHECK</button>
+      </div>
+
+      <div class="actions">
+        <button id="revealBtn" class="secondary">REVEAL</button>
+        <button id="clearBtn" class="secondary">CLEAR</button>
+        <button id="skipBtn" class="secondary">SKIP</button>
+      </div>
+
+      <div id="message" class="message"></div>
+
+      <div id="answerBox" class="answer">
+        <strong>ANSWER</strong>
+        <div id="answerText"></div>
+      </div>
+
+      <div id="progress" class="footer"></div>
+    </div>
+  </div>
+
+  <script>
+    const plants = [
+      {
+        name: "Monstera Deliciosa",
+        aliases: ["monstera", "monstera deliciosa", "swiss cheese plant"],
+        image: "https://images.unsplash.com/photo-1545241047-6083a3684587?auto=format&fit=crop&w=1200&q=80"
+      },
+      {
+        name: "Snake Plant",
+        aliases: ["snake plant", "sansevieria", "dracaena trifasciata", "mother in law's tongue", "lengua de suegra", "oreja de burro"],
+        image: "https://images.unsplash.com/photo-1593691509543-c55fb32a44d1?auto=format&fit=crop&w=1200&q=80"
+      },
+      {
+        name: "Peace Lily",
+        aliases: ["peace lily", "spathiphyllum", "lirio de la paz"],
+        image: "https://images.unsplash.com/photo-1614594975525-e45190c55d0b?auto=format&fit=crop&w=1200&q=80"
+      },
+      {
+        name: "Sabila",
+        aliases: ["aloe vera", "aloe", "sabila", "savila"],
+        image: "https://images.unsplash.com/photo-1570295835271-04c05b4ed943?q=80&w=1170&auto=format&fit=crop"
+      },
+      {
+        name: "Pothos",
+        aliases: ["pothos", "golden pothos", "devils ivy", "devil's ivy", "epipremnum aureum"],
+        image: "https://images.unsplash.com/photo-1604762524889-3e2fcc145683?auto=format&fit=crop&w=1200&q=80"
+      },
+      {
+        name: "Bromelia",
+        aliases: ["bromelia", "bromelia azul"],
+        image: "https://lh3.googleusercontent.com/pw/AP1GczPHALnaQ99JIJ2XlJQCzMcbW6yO7fTALmhuB3G48tRkpHPu5SiQsGVG_S9GNdIOkF8bwX7fRBZX8GVAsYR2D56GPtIZO0O9hJBm_UeshVINgiDA9MN8emecCSQ9yL7NCNZQhAMzAJrwkSaBLQZmdA4ZYQ=w624-h828-s-no-gm?authuser=0"
+      },
+      {
+        name: "Orquidea",
+        aliases: ["orquidea", "orquidea amarilla", "orchid"],
+        image: "https://lh3.googleusercontent.com/pw/AP1GczO3WLgUIXNfPzKYQ7RlZWylbZGOvB9PCS6Etw59W42tdSnAXbcLtvVwIwMU3mQJn02bHvYuoYDWNt5Pf-1Uy4qLVcvL4N51kHAscrTK3P9SsNkeOZo0QPS7x_CNDBoE7ObIAkNObDHXK4qPwQfhIODNAQ=w624-h828-s-no-gm?authuser=0"
+      },
+      {
+        name: "No me acuerdo",
+        aliases: ["no me acuerdo"],
+        image: "https://lh3.googleusercontent.com/pw/AP1GczPDgNUVqI7HZkX3NMU3XBGTHl1KyouFnBL2FfTZQbSJ-yiLZqHSCzrQdMYySfU7JoUMrYcnyY5gynOk3uOfH-UXV1muMdGt3wAAlUVYDpEqvWsRUbAWeGG4c3_md-_mswApAyrbxoRD7J5GVTX6feMEqA=w624-h828-s-no-gm?authuser=0"
+      },
+      {
+        name: "Fiddle Leaf Fig",
+        aliases: ["fiddle leaf fig", "ficus lyrata"],
+        image: "https://images.unsplash.com/photo-1512428813834-c702c7702b78?auto=format&fit=crop&w=1200&q=80"
+      },
+      {
+        name: "ZZ Plant",
+        aliases: ["zz plant", "zamioculcas", "zamioculcas zamiifolia"],
+        image: "https://images.unsplash.com/photo-1598880940080-ff9a29891b85?auto=format&fit=crop&w=1200&q=80"
+      }
+    ];
+
+    function normalizeText(text) {
+      return text
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9\s]/g, "")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    function shuffleArray(array) {
+      const arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    let deck = shuffleArray(plants);
+    let currentIndex = 0;
+    let correctCount = 0;
+    let isRestarting = false;
+
+    const plantImage = document.getElementById("plantImage");
+    const imageError = document.getElementById("imageError");
+    const guessInput = document.getElementById("guessInput");
+    const checkBtn = document.getElementById("checkBtn");
+    const revealBtn = document.getElementById("revealBtn");
+    const clearBtn = document.getElementById("clearBtn");
+    const skipBtn = document.getElementById("skipBtn");
+    const message = document.getElementById("message");
+    const answerBox = document.getElementById("answerBox");
+    const answerText = document.getElementById("answerText");
+    const progress = document.getElementById("progress");
+
+    function showMessage(text, type) {
+      message.textContent = text;
+      message.className = `message ${type}`;
+    }
+
+    function hideMessage() {
+      message.textContent = "";
+      message.className = "message";
+    }
+
+    function getCurrentPlant() {
+      return deck[currentIndex];
+    }
+
+    function setControlsDisabled(disabled) {
+      guessInput.disabled = disabled;
+      checkBtn.disabled = disabled;
+      revealBtn.disabled = disabled;
+      clearBtn.disabled = disabled;
+      skipBtn.disabled = disabled;
+    }
+
+    function updateProgressText() {
+      progress.textContent = `PLANT ${currentIndex + 1}/${deck.length} • SCORE ${correctCount}`;
+    }
+
+    function loadPlant() {
+      const plant = getCurrentPlant();
+
+      plantImage.style.display = "block";
+      imageError.style.display = "none";
+      plantImage.src = plant.image;
+      plantImage.alt = "Guess this plant";
+
+      guessInput.value = "";
+      answerBox.style.display = "none";
+      hideMessage();
+      setControlsDisabled(false);
+      updateProgressText();
+      guessInput.focus();
+    }
+
+    function restartRound() {
+      isRestarting = true;
+      setControlsDisabled(true);
+      showMessage(`🌿 Round complete! Score ${correctCount}/${deck.length}. Restarting...`, "success");
+
+      setTimeout(() => {
+        deck = shuffleArray(plants);
+        currentIndex = 0;
+        correctCount = 0;
+        isRestarting = false;
+        loadPlant();
+      }, 900);
+    }
+
+    function nextPlant() {
+      if (isRestarting) return;
+
+      currentIndex++;
+
+      if (currentIndex >= deck.length) {
+        restartRound();
+        return;
+      }
+
+      loadPlant();
+    }
+
+    function checkGuess() {
+      if (isRestarting) return;
+
+      const plant = getCurrentPlant();
+      const userGuess = normalizeText(guessInput.value);
+
+      if (!userGuess) {
+        showMessage("😏 Tramposillo... escribe algo", "error");
+        return;
+      }
+
+      const validAnswers = [plant.name, ...(plant.aliases || [])].map(normalizeText);
+
+      if (validAnswers.includes(userGuess)) {
+        correctCount++;
+        showMessage("🌿 Ya eres una botánica!", "success");
+        setControlsDisabled(true);
+        setTimeout(nextPlant, 650);
+      } else {
+        showMessage("❌ Es ese tu mejor intento?", "error");
+      }
+    }
+
+    function revealAnswer() {
+      if (isRestarting) return;
+      const plant = getCurrentPlant();
+      answerText.textContent = plant.name;
+      answerBox.style.display = "block";
+    }
+
+    function clearGuess() {
+      if (isRestarting) return;
+      guessInput.value = "";
+      hideMessage();
+      answerBox.style.display = "none";
+      guessInput.focus();
+    }
+
+    plantImage.onerror = () => {
+      plantImage.style.display = "none";
+      imageError.style.display = "block";
+      imageError.innerHTML = "IMAGE FAILED<br>PRESS SKIP";
+    };
+
+    checkBtn.addEventListener("click", checkGuess);
+    revealBtn.addEventListener("click", revealAnswer);
+    clearBtn.addEventListener("click", clearGuess);
+    skipBtn.addEventListener("click", nextPlant);
+
+    guessInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") checkGuess();
+    });
+
+    loadPlant();
+  </script>
+</body>
+</html>
