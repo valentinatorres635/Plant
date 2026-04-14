@@ -314,20 +314,29 @@
         <div id="answerText"></div>
       </div>
 
-      <div id="progress" class="footer"></div>
+      <div id="progress" class="footer">LOADING PLANTS...</div>
     </div>
   </div>
 
   <script>
-let plants = [];
+    let plants = [];
+    let deck = [];
+    let currentIndex = 0;
+    let correctCount = 0;
+    let isRestarting = false;
 
-fetch("plants.json")
-  .then(res => res.json())
-  .then(data => {
-    plants = data;
-    deck = shuffleArray(plants);
-    loadPlant();
-  });
+    const plantImage = document.getElementById("plantImage");
+    const imageError = document.getElementById("imageError");
+    const guessInput = document.getElementById("guessInput");
+    const checkBtn = document.getElementById("checkBtn");
+    const revealBtn = document.getElementById("revealBtn");
+    const clearBtn = document.getElementById("clearBtn");
+    const skipBtn = document.getElementById("skipBtn");
+    const message = document.getElementById("message");
+    const answerBox = document.getElementById("answerBox");
+    const answerText = document.getElementById("answerText");
+    const progress = document.getElementById("progress");
+
     function normalizeText(text) {
       return text
         .toLowerCase()
@@ -346,23 +355,6 @@ fetch("plants.json")
       }
       return arr;
     }
-
-    let deck = shuffleArray(plants);
-    let currentIndex = 0;
-    let correctCount = 0;
-    let isRestarting = false;
-
-    const plantImage = document.getElementById("plantImage");
-    const imageError = document.getElementById("imageError");
-    const guessInput = document.getElementById("guessInput");
-    const checkBtn = document.getElementById("checkBtn");
-    const revealBtn = document.getElementById("revealBtn");
-    const clearBtn = document.getElementById("clearBtn");
-    const skipBtn = document.getElementById("skipBtn");
-    const message = document.getElementById("message");
-    const answerBox = document.getElementById("answerBox");
-    const answerText = document.getElementById("answerText");
-    const progress = document.getElementById("progress");
 
     function showMessage(text, type) {
       message.textContent = text;
@@ -391,7 +383,17 @@ fetch("plants.json")
     }
 
     function loadPlant() {
+      if (!deck.length) {
+        progress.textContent = "NO PLANTS FOUND";
+        return;
+      }
+
       const plant = getCurrentPlant();
+
+      if (!plant) {
+        progress.textContent = "PLANT DATA ERROR";
+        return;
+      }
 
       plantImage.style.display = "block";
       imageError.style.display = "none";
@@ -421,7 +423,7 @@ fetch("plants.json")
     }
 
     function nextPlant() {
-      if (isRestarting) return;
+      if (isRestarting || !deck.length) return;
 
       currentIndex++;
 
@@ -434,7 +436,7 @@ fetch("plants.json")
     }
 
     function checkGuess() {
-      if (isRestarting) return;
+      if (isRestarting || !deck.length) return;
 
       const plant = getCurrentPlant();
       const userGuess = normalizeText(guessInput.value);
@@ -457,14 +459,14 @@ fetch("plants.json")
     }
 
     function revealAnswer() {
-      if (isRestarting) return;
+      if (isRestarting || !deck.length) return;
       const plant = getCurrentPlant();
       answerText.textContent = plant.name;
       answerBox.style.display = "block";
     }
 
     function clearGuess() {
-      if (isRestarting) return;
+      if (isRestarting || !deck.length) return;
       guessInput.value = "";
       hideMessage();
       answerBox.style.display = "none";
@@ -486,7 +488,27 @@ fetch("plants.json")
       if (e.key === "Enter") checkGuess();
     });
 
-    loadPlant();
+    setControlsDisabled(true);
+
+    fetch("plants.json")
+      .then(res => {
+        if (!res.ok) {
+          throw new Error("Could not load plants.json");
+        }
+        return res.json();
+      })
+      .then(data => {
+        plants = data;
+        deck = shuffleArray(plants);
+        currentIndex = 0;
+        correctCount = 0;
+        loadPlant();
+      })
+      .catch(() => {
+        progress.textContent = "FAILED TO LOAD PLANTS";
+        showMessage("Could not load plants.json", "error");
+        setControlsDisabled(true);
+      });
   </script>
 </body>
 </html>
