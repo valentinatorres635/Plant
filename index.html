@@ -319,59 +319,15 @@
   </div>
 
   <script>
-    const plants = [
-      {
-        name: "Monstera Deliciosa",
-        aliases: ["monstera", "monstera deliciosa", "swiss cheese plant"],
-        image: "https://images.unsplash.com/photo-1545241047-6083a3684587?auto=format&fit=crop&w=1200&q=80"
-      },
-      {
-        name: "Snake Plant",
-        aliases: ["snake plant", "sansevieria", "dracaena trifasciata", "mother in law's tongue", "lengua de suegra", "oreja de burro"],
-        image: "https://images.unsplash.com/photo-1593691509543-c55fb32a44d1?auto=format&fit=crop&w=1200&q=80"
-      },
-      {
-        name: "Peace Lily",
-        aliases: ["peace lily", "spathiphyllum", "lirio de la paz"],
-        image: "https://images.unsplash.com/photo-1614594975525-e45190c55d0b?auto=format&fit=crop&w=1200&q=80"
-      },
-      {
-        name: "Sabila",
-        aliases: ["aloe vera", "aloe", "sabila", "savila"],
-        image: "https://images.unsplash.com/photo-1570295835271-04c05b4ed943?q=80&w=1170&auto=format&fit=crop"
-      },
-      {
-        name: "Pothos",
-        aliases: ["pothos", "golden pothos", "devils ivy", "devil's ivy", "epipremnum aureum"],
-        image: "https://images.unsplash.com/photo-1604762524889-3e2fcc145683?auto=format&fit=crop&w=1200&q=80"
-      },
-      {
-        name: "Bromelia",
-        aliases: ["bromelia", "bromelia azul"],
-        image: "https://lh3.googleusercontent.com/pw/AP1GczPHALnaQ99JIJ2XlJQCzMcbW6yO7fTALmhuB3G48tRkpHPu5SiQsGVG_S9GNdIOkF8bwX7fRBZX8GVAsYR2D56GPtIZO0O9hJBm_UeshVINgiDA9MN8emecCSQ9yL7NCNZQhAMzAJrwkSaBLQZmdA4ZYQ=w624-h828-s-no-gm?authuser=0"
-      },
-      {
-        name: "Orquidea",
-        aliases: ["orquidea", "orquidea amarilla", "orchid"],
-        image: "https://lh3.googleusercontent.com/pw/AP1GczO3WLgUIXNfPzKYQ7RlZWylbZGOvB9PCS6Etw59W42tdSnAXbcLtvVwIwMU3mQJn02bHvYuoYDWNt5Pf-1Uy4qLVcvL4N51kHAscrTK3P9SsNkeOZo0QPS7x_CNDBoE7ObIAkNObDHXK4qPwQfhIODNAQ=w624-h828-s-no-gm?authuser=0"
-      },
-      {
-        name: "No me acuerdo",
-        aliases: ["no me acuerdo"],
-        image: "https://lh3.googleusercontent.com/pw/AP1GczPDgNUVqI7HZkX3NMU3XBGTHl1KyouFnBL2FfTZQbSJ-yiLZqHSCzrQdMYySfU7JoUMrYcnyY5gynOk3uOfH-UXV1muMdGt3wAAlUVYDpEqvWsRUbAWeGG4c3_md-_mswApAyrbxoRD7J5GVTX6feMEqA=w624-h828-s-no-gm?authuser=0"
-      },
-      {
-        name: "Fiddle Leaf Fig",
-        aliases: ["fiddle leaf fig", "ficus lyrata"],
-        image: "https://images.unsplash.com/photo-1512428813834-c702c7702b78?auto=format&fit=crop&w=1200&q=80"
-      },
-      {
-        name: "ZZ Plant",
-        aliases: ["zz plant", "zamioculcas", "zamioculcas zamiifolia"],
-        image: "https://images.unsplash.com/photo-1598880940080-ff9a29891b85?auto=format&fit=crop&w=1200&q=80"
-      }
-    ];
+let plants = [];
 
+fetch("plants.json")
+  .then(res => res.json())
+  .then(data => {
+    plants = data;
+    deck = shuffleArray(plants);
+    loadPlant();
+  });
     function normalizeText(text) {
       return text
         .toLowerCase()
